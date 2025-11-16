@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}Bulk Lookup - Audos Lookup{% endblock %}
+
+{% block content %}
+<div class="bulk-lookup-container">
+    <div class="upload-card">
+        <h1 class="card-title">Bulk Business Verification</h1>
+        <p class="card-subtitle">Upload a CSV file with corporate numbers to verify multiple businesses</p>
+        
+        <form method="POST" action="{{ url_for('upload_csv') }}" enctype="multipart/form-data" class="upload-form">
+            <div class="form-group">
+                <label for="csv_file" class="file-label">CSV File</label>
+                <input 
+                    type="file" 
+                    id="csv_file" 
+                    name="file" 
+                    class="file-input" 
+                    accept=".csv"
+                    required
+                >
+                <small class="form-hint">CSV must contain a column named "business_id" or "corporate_number"</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload and Verify</button>
+        </form>
+        
+        <div id="bulk-results"></div>
+    </div>
+
+    {% if results %}
+    <div class="results-card">
+        <div class="results-header">
+            <h2 class="results-title">Verification Results</h2>
+            <div class="results-actions">
+                {% if zip_url %}
+                <a href="{{ zip_url }}" class="btn btn-secondary" download>Download ZIP of PDFs</a>
+                {% endif %}
+                {% if csv_url %}
+                <a href="{{ csv_url }}" class="btn btn-secondary" download>Download Result CSV</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Business ID</th>
+                        <th>Company Name</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr class="{% if result.error %}error-row{% else %}success-row{% endif %}">
+                        <td>{{ result.business_id or 'N/A' }}</td>
+                        <td>{{ result.company_name or 'N/A' }}</td>
+                        <td>{{ result.address or 'N/A' }}</td>
+                        <td>
+                            {% if result.error %}
+                            <span class="status-error">{{ result.error }}</span>
+                            {% else %}
+                            <span class="status-success">Verified</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    const form = document.querySelector('.upload-form');
+    const bulkResultsDiv = document.getElementById('bulk-results');
+    
+    if (!form || !bulkResultsDiv) {
+        return;
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('csv_file');
+        const file = fileInput ? fileInput.files[0] : null;
+        
+        if (!file) {
+            bulkResultsDiv.innerHTML = '<div class="error">Please select a CSV file.</div>';
+            return;
+        }
+        
+        bulkResultsDiv.innerHTML = 'Processing CSV…';
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('/lookup-csv', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                bulkResultsDiv.innerHTML = '<div class="error">' + 
+                    (data.error === 'internal_server_error' ? 'Internal server error. Please try again.' : escapeHtml(data.error)) + 
+                    '</div>';
+            } else if (data.results && Array.isArray(data.results)) {
+                let html = '<div class="results-card">';
+                html += '<h2 class="results-title">Verification Results</h2>';
+                html += '<div class="table-container">';
+                html += '<table class="results-table">';
+                html += '<thead><tr>';
+                html += '<th>ID</th>';
+                html += '<th>Name</th>';
+                html += '<th>Address</th>';
+                html += '<th>Error</th>';
+                html += '<th>Timestamp</th>';
+                html += '</tr></thead>';
+                html += '<tbody>';
+                
+                data.results.forEach(function(result) {
+                    html += '<tr class="' + (result.error ? 'error-row' : 'success-row') + '">';
+                    html += '<td>' + escapeHtml(result.business_id || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.name || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.address || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.error || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.timestamp || 'N/A') + '</td>';
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div></div>';
+                bulkResultsDiv.innerHTML = html;
+            } else {
+                bulkResultsDiv.innerHTML = '<div class="error">Unexpected response format.</div>';
+            }
+        })
+        .catch(error => {
+            bulkResultsDiv.innerHTML = '<div class="error">Network error. Please try again.</div>';
+        });
+    });
+    
+    function escapeHtml(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+})();
+</script>
+{% endblock %}
+

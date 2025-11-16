@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Logs - Audos Lookup{% endblock %}
+
+{% block content %}
+<div class="lookup-card">
+    <h1 class="card-title">Lookup Logs</h1>
+    
+    {% if logs %}
+    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #f9fafb;">
+                <th style="text-align: left; padding: 0.75rem;">Timestamp</th>
+                <th style="text-align: left; padding: 0.75rem;">Term</th>
+                <th style="text-align: left; padding: 0.75rem;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td style="padding: 0.75rem;">{{ log.timestamp }}</td>
+                <td style="padding: 0.75rem;">{{ log.term }}</td>
+                <td style="padding: 0.75rem;">
+                    {% if log.status == "ok" %}
+                    <span style="color: green; font-weight: bold;">ok</span>
+                    {% else %}
+                    <span style="color: red; font-weight: bold;">error</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="margin-top: 1rem; color: #6b7280;">No logs available.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

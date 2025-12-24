@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+
+{% block title %}Single Lookup - Audos Business Lookup{% endblock %}
+
+{% block content %}
+<div class="lookup-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Audos Business Lookup – Single (v2)</h1>
+        <p class="page-subtitle">Verify Japanese corporate and invoice registration numbers.</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content-grid">
+        <!-- Lookup Form Card -->
+        <div class="form-card">
+            <h2 class="form-card-title">Corporate Number</h2>
+            <form id="lookupForm" class="lookup-form">
+                <div class="form-group">
+                    <label for="business_id" class="form-label">Corporate Number</label>
+                    <input 
+                        type="text" 
+                        id="business_id" 
+                        name="business_id" 
+                        class="form-input" 
+                        placeholder="Enter 13-digit corporate number"
+                        required
+                        maxlength="13"
+                    >
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Verify Business</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Display Area -->
+    <div id="result-container"></div>
+</div>
+
+<script>
+(function() {
+    const form = document.getElementById('lookupForm');
+    const resultContainer = document.getElementById('result-container');
+    
+    if (!form || !resultContainer) {
+        return;
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const businessIdInput = document.getElementById('business_id');
+        const businessId = businessIdInput ? businessIdInput.value.trim() : '';
+        
+        if (!businessId) {
+            resultContainer.innerHTML = '<div class="error-card"><p class="error-message">Corporate number is required.</p></div>';
+            return;
+        }
+        
+        if (businessId.length !== 13 || !/^\d+$/.test(businessId)) {
+            resultContainer.innerHTML = '<div class="error-card"><p class="error-message">Corporate number must be exactly 13 digits.</p></div>';
+            return;
+        }
+        
+        resultContainer.innerHTML = '<div class="loading-message">Looking up business information…</div>';
+        
+        fetch('/lookup-single', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ business_id: businessId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                resultContainer.innerHTML = '<div class="error-card"><h2 class="card-title">Error</h2><p class="error-message">' + 
+                    escapeHtml(data.error) + '</p></div>';
+            } else {
+                let html = '<div class="result-card"><h2 class="card-title">Result</h2>';
+                html += '<div class="result-grid">';
+                
+                if (data.name) {
+                    html += '<div class="result-item"><p class="result-label">Company Name</p><p class="result-value">' + 
+                        escapeHtml(data.name) + '</p></div>';
+                }
+                
+                if (data.business_id) {
+                    html += '<div class="result-item"><p class="result-label">Corporate Number</p><p class="result-value">' + 
+                        escapeHtml(data.business_id) + '</p></div>';
+                }
+                
+                if (data.address) {
+                    html += '<div class="result-item result-item-full"><p class="result-label">Address</p><p class="result-value">' + 
+                        escapeHtml(data.address) + '</p></div>';
+                }
+                
+                if (data.registration_status) {
+                    const statusClass = data.registration_status === 'active' ? 'status-success' : 'status-warning';
+                    html += '<div class="result-item"><p class="result-label">Status</p><span class="status-badge ' + statusClass + '">' + 
+                        escapeHtml(data.registration_status) + '</span></div>';
+                }
+                
+                if (data.timestamp) {
+                    html += '<div class="result-item"><p class="result-label">Last Updated</p><p class="result-value">' + 
+                        escapeHtml(data.timestamp) + '</p></div>';
+                }
+                
+                html += '</div></div>';
+                resultContainer.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            resultContainer.innerHTML = '<div class="error-card"><p class="error-message">Network error. Please try again.</p></div>';
+        });
+    });
+    
+    function escapeHtml(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+})();
+</script>
+{% endblock %}

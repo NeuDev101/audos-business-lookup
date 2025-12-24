@@ -1,0 +1,13 @@
+venv/
+.env
+.DS_Store
+*.pyc
+__pycache__/
+backend/**/__pycache__/
+backend/lookup_service/logs/
+react-business-lookup/node_modules/
+react-business-lookup/dist/
+react-business-lookup/.vite/
+react-business-lookup/.vite-temp/
+npm-debug.log*
+yarn.lock

@@ -1,9 +1,0 @@
-2025-11-15T08:31:11.620090Z | lookup_single | 1234567890123 | {"business_id": "1234567890123", "error": "Not found", "timestamp": "2025-11-15T08:31:10.459577Z"} | error
-2025-11-15T08:32:21.058033Z | lookup_bulk | 1234567890123 | {"business_id": "1234567890123", "error": "Not found", "timestamp": "2025-11-15T08:32:19.959520Z"} | error
-2025-11-15T08:32:21.058302Z | lookup_bulk | 999 | {"business_id": "999", "error": "Business ID must be 13 digits", "timestamp": "2025-11-15T08:32:21.058240Z"} | error
-2025-11-15T08:32:21.058467Z | lookup_bulk | abc | {"business_id": "abc", "error": "Business ID must be numeric", "timestamp": "2025-11-15T08:32:21.058417Z"} | error
-2025-11-15T08:33:02.226471Z | lookup_csv | 6010401126402 | {"business_id": "6010401126402", "error": "Not found", "timestamp": "2025-11-15T08:33:01.418742Z"} | error
-2025-11-15T08:33:03.045642Z | lookup_csv | 8020001010007 | {"business_id": "8020001010007", "error": "Not found", "timestamp": "2025-11-15T08:33:02.227101Z"} | error
-2025-11-15T08:51:21.348959Z | lookup_single | 1010001001234 | {"business_id": "1010001001234", "error": "Not found", "timestamp": "2025-11-15T08:51:20.090926Z"} | error
-2025-11-15T09:03:57.215221Z | lookup_csv | 6010401126402 | {"business_id": "6010401126402", "error": "Not found", "timestamp": "2025-11-15T09:03:56.002181Z"} | error
-2025-11-15T09:03:57.860909Z | lookup_csv | 8020001010007 | {"business_id": "8020001010007", "error": "Not found", "timestamp": "2025-11-15T09:03:57.215614Z"} | error

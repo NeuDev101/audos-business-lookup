@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Audos Invoice</title>
+    <style>
+        .status {
+            font-size: 0.9em;
+            margin-left: 8px;
+        }
+        .ok { color: limegreen; }
+        .fail { color: red; }
+        
+        /* Validation Status Panel */
+        #validation-status-panel {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            max-width: calc(100% - 40px);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            z-index: 1000;
+            font-size: 0.9em;
+        }
+        
+        .status-content {
+            margin: 0;
+        }
+        
+        .status-content.processing {
+            border-left: 4px solid #2196F3;
+        }
+        
+        .status-content.success {
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .status-content.warning {
+            border-left: 4px solid #FF9800;
+        }
+        
+        .status-content.error {
+            border-left: 4px solid #F44336;
+        }
+        
+        .status-message {
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .status-content.processing .status-message {
+            color: #2196F3;
+        }
+        
+        .status-content.success .status-message {
+            color: #4CAF50;
+        }
+        
+        .status-content.warning .status-message {
+            color: #FF9800;
+        }
+        
+        .status-content.error .status-message {
+            color: #F44336;
+        }
+        
+        #formatting-checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        
+        #formatting-checklist li {
+            padding: 4px 0;
+            color: #666;
+        }
+        
+        .status-content.processing #formatting-checklist li {
+            color: #2196F3;
+        }
+        
+        .status-content.success #formatting-checklist li {
+            color: #4CAF50;
+        }
+        
+        .status-content.warning #formatting-checklist li {
+            color: #666;
+        }
+        
+        .status-content.error #formatting-checklist li {
+            color: #F44336;
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            background: #f5f5f5;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 4px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            background: #e8e8e8;
+        }
+        
+        .tab-button.active {
+            background: white;
+            border-bottom-color: #2196F3;
+            color: #2196F3;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Batch Upload Styles */
+        #batch-upload-form {
+            margin: 20px 0;
+        }
+        
+        #batch-upload-form input[type="file"] {
+            margin: 10px 0;
+            padding: 8px;
+        }
+        
+        #batch-results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        #batch-results.show {
+            display: block;
+        }
+        
+        /* Batch Results Table */
+        #batch-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        #batch-results-table thead {
+            background: #f5f5f5;
+        }
+        
+        #batch-results-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+            color: #333;
+        }
+        
+        #batch-results-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        #batch-results-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+        
+        #batch-results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-badge.pass {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status-badge.fail {
+            background: #F44336;
+            color: white;
+        }
+        
+        .download-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .download-link:hover {
+            background: #1976D2;
+        }
+        
+        .batch-summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .batch-summary h3 {
+            margin-top: 0;
+        }
+        
+        .zip-download {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .zip-download:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>請求書作成 / Create Invoice</h1>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+    <button class="tab-button active" onclick="switchTab('manual')">Manual Invoice / 手動入力</button>
+    <button class="tab-button" onclick="switchTab('batch')">Batch Upload / 一括アップロード</button>
+</div>
+
+<!-- Validation Status Panel -->
+<div id="validation-status-panel">
+    <div id="validation-status-content" class="status-content">
+        <div class="status-message">Auto-formatting your invoice…</div>
+        <ul id="formatting-checklist">
+            <li>Checking required fields</li>
+            <li>Validating formats</li>
+            <li>Normalizing data</li>
+            <li>Applying corrections</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Manual Invoice Tab -->
+<div id="tab-manual" class="tab-content active">
+<form action="/generate" method="post">
+
+    <!-- Issuer Name -->
+    <label>発行者名 / Issuer Name:</label><br>
+    <input type="text" name="issuer_name" id="issuer_name">
+    <span id="issuer_name-status" class="status"></span>
+    <br><br>
+
+    <!-- Buyer -->
+    <label>購入者名 / Buyer:</label><br>
+    <input type="text" name="buyer" id="buyer">
+    <span id="buyer-status" class="status"></span>
+    <br><br>
+
+    <!-- Invoice Number -->
+    <label>請求書番号 / Invoice Number:</label><br>
+    <input type="text" name="invoice_number" id="invoice_number">
+    <span id="invoice_number-status" class="status"></span>
+    <br><br>
+
+    <!-- Date -->
+    <label>日付 / Date (YYYY-MM-DD):</label><br>
+    <input type="text" name="date" id="date">
+    <span id="date-status" class="status"></span>
+    <br><br>
+
+    <!-- Transaction Date -->
+    <label>取引日 / Transaction Date (YYYY-MM-DD):</label><br>
+    <input type="text" name="transaction_date" id="transaction_date">
+    <br><br>
+
+    <!-- Issuer ID -->
+    <label>適格請求書発行事業者番号 / Registration Number:</label><br>
+    <input type="text" name="issuer_id" id="issuer_id">
+    <span id="issuer_id-status" class="status"></span>
+    <br><br>
+
+    <!-- Email -->
+    <label>Email:</label><br>
+    <input type="text" name="email" id="email">
+    <span id="email-status" class="status"></span>
+    <br><br>
+
+    <!-- Phone -->
+    <label>電話番号 / Phone:</label><br>
+    <input type="text" name="phone" id="phone">
+    <span id="phone-status" class="status"></span>
+    <br><br>
+
+    <!-- Address -->
+    <label>住所 / Address:</label><br>
+    <input type="text" name="address" id="address">
+    <span id="address-status" class="status"></span>
+    <br><br>
+
+    <!-- Item Fields -->
+    <h3>Items</h3>
+
+    <label>品目 / Description:</label><br>
+    <input type="text" name="item" id="item">
+    <br><br>
+
+    <label>数量 / Quantity:</label><br>
+    <input type="text" name="quantity" id="quantity">
+    <br><br>
+
+    <label>税抜金額 / Amount Excl. Tax:</label><br>
+    <input type="text" name="price" id="price">
+    <br><br>
+
+    <label>税率 / Tax Rate (%):</label><br>
+    <input type="text" name="tax_rate" id="tax_rate">
+    <span id="tax_rate-status" class="status"></span>
+    <br><br>
+
+    <!-- Reduced Rate Flag -->
+    <label>
+        <input type="checkbox" name="reduced_rate" id="reduced_rate">
+        軽減税率対象 / Reduced Rate Applicable
+    </label>
+    <br><br>
+
+    <!-- Remarks -->
+    <label>備考 / Remarks:</label><br>
+    <textarea name="remarks" id="remarks" rows="3" style="width: 100%; max-width: 500px;"></textarea>
+    <br><br>
+
+    <button type="submit">PDFを生成 / Generate PDF</button>
+
+</form>
+</div>
+
+<!-- Batch Upload Tab -->
+<div id="tab-batch" class="tab-content">
+    <h2>Batch Upload / 一括アップロード</h2>
+    <p>Upload a CSV file containing multiple invoices for batch processing.</p>
+    
+    <form id="batch-upload-form" enctype="multipart/form-data">
+        <label for="csv-file">CSV File:</label><br>
+        <input type="file" id="csv-file" name="csv_file" accept=".csv" required>
+        <br><br>
+        <button type="submit">Process Batch / 一括処理</button>
+    </form>
+    
+    <div id="batch-results">
+        <div class="batch-summary" id="batch-summary"></div>
+        <div id="invoice-results">
+            <table id="batch-results-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Status</th>
+                        <th>Issues</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody id="batch-results-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========== LIVE VALIDATION SCRIPT (do not modify) ========== -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    async function validateField(field) {
+
+        const name = field.name;
+        const value = field.value.trim();
+        const indicator = document.getElementById(`${name}-status`);
+        if (!indicator) return;
+
+        if (value === "") {
+            indicator.textContent = "";
+            indicator.className = "status";
+            return;
+        }
+
+        try {
+            const response = await fetch("/validate_field", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ field: name, value: value })
+            });
+
+            const data = await response.json();
+            if (data.status === "pass") {
+                indicator.textContent = "✔ OK";
+                indicator.className = "status ok";
+            } else {
+                indicator.textContent = "✘ NG";
+                indicator.className = "status fail";
+            }
+
+        } catch (err) {
+            console.error("Validation error:", err);
+        }
+    }
+
+    document.querySelectorAll("input").forEach(el => {
+        el.addEventListener("input", () => validateField(el));
+    });
+});
+</script>
+
+<!-- Status Panel Script -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<!-- Tab and Batch Upload Script -->
+<script>
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    // Activate selected button
+    event.target.classList.add('active');
+}
+
+// Batch upload form handler
+document.getElementById('batch-upload-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('csv-file');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a CSV file');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('csv_file', file);
+    
+    // Show loading state
+    const resultsDiv = document.getElementById('batch-results');
+    resultsDiv.classList.add('show');
+    const table = document.getElementById('batch-results-table');
+    const tbody = document.getElementById('batch-results-tbody');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">Processing...</td></tr>';
+    table.style.display = 'table';
+    
+    try {
+        const response = await fetch('/upload_batch', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            displayBatchResults(data);
+        } else {
+            const table = document.getElementById('batch-results-table');
+            const tbody = document.getElementById('batch-results-tbody');
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: red;">Error: ${data.error || data.message || 'Unknown error'}</td></tr>`;
+            table.style.display = 'table';
+        }
+    } catch (err) {
+        const table = document.getElementById('batch-results-table');
+        const tbody = document.getElementById('batch-results-tbody');
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: red;">Error: ${err.message}</td></tr>`;
+        table.style.display = 'table';
+    }
+});
+
+function displayBatchResults(data) {
+    // Display summary
+    const summaryDiv = document.getElementById('batch-summary');
+    const counts = data.counts || {pass: 0, fail: 0};
+    summaryDiv.innerHTML = `
+        <h3>Batch Processing Results</h3>
+        <p><strong>Total:</strong> ${data.invoices ? data.invoices.length : 0} invoices</p>
+        <p><strong>Pass:</strong> ${counts.pass} | <strong>Fail:</strong> ${counts.fail}</p>
+        ${data.zip_path ? `<a href="/download_batch/${data.batch_id}" class="zip-download">Download ZIP / ZIPをダウンロード</a>` : ''}
+    `;
+    
+    // Display individual invoice results in table
+    const table = document.getElementById('batch-results-table');
+    const tbody = document.getElementById('batch-results-tbody');
+    
+    if (data.invoices && data.invoices.length > 0) {
+        // Clear existing rows
+        tbody.innerHTML = '';
+        
+        // Add rows for each invoice
+        data.invoices.forEach(inv => {
+            const statusClass = inv.status === 'pass' ? 'pass' : 'fail';
+            const statusBadge = `<span class="status-badge ${statusClass}">${inv.status.toUpperCase()}</span>`;
+            
+            let pdfLink = '—';
+            if (inv.pdf_path) {
+                // Extract relative path from output directory
+                let relPath = inv.pdf_path.replace(/^output[\/\\]/, '').replace(/\\/g, '/');
+                pdfLink = `<a href="/download_pdf/${encodeURIComponent(relPath)}" class="download-link">Download PDF</a>`;
+            }
+            
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${inv.invoice_number || 'Unknown'}</td>
+                <td>${statusBadge}</td>
+                <td>${inv.issues || 0}</td>
+                <td>${pdfLink}</td>
+            `;
+        });
+        
+        // Show table
+        table.style.display = 'table';
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No invoices processed.</td></tr>';
+        table.style.display = 'table';
+    }
+}
+</script>
+
+</body>
+</html>

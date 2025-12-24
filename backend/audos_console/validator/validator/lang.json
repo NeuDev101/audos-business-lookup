@@ -1,0 +1,31 @@
+{
+  "labels": {
+    "invoice_number": {"ja": "請求書番号", "en": "Invoice Number"},
+    "issuer_id": {"ja": "登録番号", "en": "Qualified Issuer ID"},
+    "issuer_name": {"ja": "発行者名", "en": "Issuer Name"},
+    "date": {"ja": "日付", "en": "Date"},
+    "tax_rate": {"ja": "税率", "en": "Tax Rate"},
+    "subtotal": {"ja": "小計", "en": "Subtotal"},
+    "total": {"ja": "合計金額", "en": "Total Amount"},
+    "result": {"ja": "検証結果", "en": "Validation Result"},
+    "compliant": {"ja": "適格", "en": "Compliant"},
+    "non_compliant": {"ja": "不適格", "en": "Non-Compliant"},
+    "phone": {"ja": "電話番号", "en": "Phone Number"},
+    "email": {"ja": "メールアドレス", "en": "Email"},
+    "address": {"ja": "住所", "en": "Address"}
+  },
+  "messages": {
+    "pass": {"ja": "適格です。", "en": "Compliant."},
+    "fail": {"ja": "不適格です。修正が必要です。", "en": "Non-compliant. Correction required."},
+    "missing_field": {"ja": "{field} が見つかりません。", "en": "{field} is missing."},
+    "invalid_format": {"ja": "{field} の形式が無効です。", "en": "Invalid format for {field}."},
+    "invalid_tax_rate": {"ja": "税率は8％または10％である必要があります。", "en": "Tax rate must be 8% or 10%."},
+    "invalid_issuer_id": {"ja": "登録番号は「T」＋13桁の数字である必要があります。", "en": "Issuer ID must begin with 'T' followed by 13 digits."},
+    "invalid_phone": {"ja": "電話番号の形式が無効です。例: 090-1234-5678 または +81-90-1234-5678", "en": "Invalid phone number format. Example: 090-1234-5678 or +81-90-1234-5678."},
+    "invalid_email": {"ja": "メールアドレスの形式が無効です。", "en": "Invalid email address."},
+    "invalid_address": {"ja": "住所が短すぎます。", "en": "Address is too short."},
+    "invalid_japanese_address": {"ja": "住所の形式が無効です。例: 〒123-4567 東京都港区芝公園4-2-8","en": "Invalid address format. Example: 〒123-4567 Tokyo-to Minato-ku Shiba-koen 4-2-8"
+}
+
+  }
+}

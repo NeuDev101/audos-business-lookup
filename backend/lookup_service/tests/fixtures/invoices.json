@@ -1,0 +1,86 @@
+[
+  {
+    "name": "standard_en",
+    "language": "en",
+    "seller": "Audos K.K.",
+    "buyer": "Blue Ocean Ltd.",
+    "invoice_number": "INV-EN-001",
+    "issue_date": "2024-12-01",
+    "transaction_date": "2024-12-01",
+    "registration_number": "T1234567890123",
+    "address": "1-2-3 Nihonbashi, Chuo-ku, Tokyo",
+    "phone": "03-1111-2222",
+    "email": "billing@audos.local",
+    "items": [
+      { "description": "Platform licensing", "quantity": 2, "unit_price": 15000 },
+      { "description": "Implementation support", "quantity": 3, "unit_price": 4800 }
+    ],
+    "tax_rate": 10,
+    "remarks": "Payment due in 30 days. Includes onboarding and premium support hours.",
+    "expected_totals": { "subtotal": 44400.0, "tax": 4440.0, "grand_total": 48840.0 },
+    "required_strings": ["INVOICE", "Blue Ocean Ltd.", "Audos K.K."]
+  },
+  {
+    "name": "reduced_rate_ja",
+    "language": "ja",
+    "seller": "Audos合同会社",
+    "buyer": "緑茶マーケット",
+    "invoice_number": "INV-JA-008",
+    "issue_date": "2024-11-15",
+    "transaction_date": "2024-11-10",
+    "registration_number": "T9876543210001",
+    "address": "京都市中京区1-2-3",
+    "phone": "075-123-4567",
+    "email": "sales@audos.local",
+    "items": [
+      { "description": "抹茶菓子セット", "quantity": 5, "unit_price": 1200 },
+      { "description": "出店料", "quantity": 1, "unit_price": 25000 }
+    ],
+    "tax_rate": 8,
+    "remarks": "軽減税率商品を含みます。",
+    "expected_totals": { "subtotal": 31000.0, "tax": 2480.0, "grand_total": 33480.0 },
+    "required_strings": ["請求書", "緑茶マーケット", "Audos合同会社"]
+  },
+  {
+    "name": "long_text_en",
+    "language": "en",
+    "seller": "Audos K.K.",
+    "buyer": "Northern Peaks Co.",
+    "invoice_number": "INV-EN-LONG",
+    "issue_date": "2024-12-20",
+    "transaction_date": "2024-12-18",
+    "registration_number": "T5555555555555",
+    "address": "2-4-6 Marunouchi, Chiyoda-ku, Tokyo",
+    "phone": "03-9876-5432",
+    "email": "finance@northernpeaks.example.com",
+    "items": [
+      { "description": "Cloud hosting", "quantity": 1, "unit_price": 8200 },
+      { "description": "Integration support", "quantity": 10, "unit_price": 950 }
+    ],
+    "tax_rate": 10,
+    "remarks": "Extended remarks: multi-line explanation covering delivery milestones, data residency notes, and escalation contacts to ensure the PDF wraps text without overlap or clipping across the totals section.",
+    "expected_totals": { "subtotal": 17700.0, "tax": 1770.0, "grand_total": 19470.0 },
+    "required_strings": ["INVOICE", "Northern Peaks Co.", "Audos K.K."]
+  },
+  {
+    "name": "ja_standard",
+    "language": "ja",
+    "seller": "Audos合同会社",
+    "buyer": "東都コマース株式会社",
+    "invoice_number": "INV-JA-010",
+    "issue_date": "2024-10-05",
+    "transaction_date": "2024-10-03",
+    "registration_number": "T2222333344444",
+    "address": "東京都渋谷区桜丘町3-21",
+    "phone": "03-5678-1111",
+    "email": "accounting@audos.local",
+    "items": [
+      { "description": "月額サブスクリプション", "quantity": 1, "unit_price": 12800 },
+      { "description": "導入コンサルティング", "quantity": 2, "unit_price": 6400 }
+    ],
+    "tax_rate": 10,
+    "remarks": "標準税率での請求書。日本語レイアウトの確認用。",
+    "expected_totals": { "subtotal": 25600.0, "tax": 2560.0, "grand_total": 28160.0 },
+    "required_strings": ["請求書", "東都コマース株式会社", "Audos合同会社"]
+  }
+]

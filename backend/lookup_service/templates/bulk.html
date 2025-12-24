@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+
+{% block title %}Bulk Lookup - Audos Business Lookup{% endblock %}
+
+{% block content %}
+<div class="bulk-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Audos Business Lookup – Bulk (v2)</h1>
+        <p class="page-subtitle">Verify Japanese corporate and invoice registration numbers.</p>
+    </div>
+
+    <!-- File Upload Section -->
+    <div class="upload-section">
+        <div class="form-card">
+            <h2 class="form-card-title">Upload CSV File</h2>
+            <form id="bulkForm" class="upload-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="csv_file" class="form-label">CSV File</label>
+                    <input 
+                        type="file" 
+                        id="csv_file" 
+                        name="file" 
+                        class="file-input" 
+                        accept=".csv"
+                        required
+                    >
+                    <small class="form-hint">CSV must contain a column named "business_id" or "corporate_number"</small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Upload and Verify</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats and Results Display Area -->
+    <div id="bulk-results-container"></div>
+</div>
+
+<script>
+(function() {
+    const form = document.getElementById('bulkForm');
+    const resultsContainer = document.getElementById('bulk-results-container');
+    
+    if (!form || !resultsContainer) {
+        return;
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('csv_file');
+        const file = fileInput ? fileInput.files[0] : null;
+        
+        if (!file) {
+            resultsContainer.innerHTML = '<div class="error-card"><p class="error-message">Please select a CSV file.</p></div>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = '<div class="loading-message">Processing CSV file…</div>';
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('/lookup-csv', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                resultsContainer.innerHTML = '<div class="error-card"><h2 class="card-title">Error</h2><p class="error-message">' + 
+                    escapeHtml(data.error) + '</p></div>';
+            } else if (data.results && Array.isArray(data.results)) {
+                // Calculate stats
+                const stats = {
+                    totalRows: data.results.length,
+                    verified: data.results.filter(r => !r.error).length,
+                    errors: data.results.filter(r => r.error).length
+                };
+                
+                let html = '';
+                
+                // Stats Card
+                html += '<div class="stats-card">';
+                html += '<div class="stats-grid">';
+                html += '<div class="stat-item"><p class="stat-label">Total Rows</p><p class="stat-value">' + stats.totalRows + '</p></div>';
+                html += '<div class="stat-item stat-success"><p class="stat-label">Verified</p><p class="stat-value">' + stats.verified + '</p></div>';
+                html += '<div class="stat-item stat-error"><p class="stat-label">Errors</p><p class="stat-value">' + stats.errors + '</p></div>';
+                html += '</div></div>';
+                
+                // Results Table Card
+                html += '<div class="results-card"><h2 class="card-title">Results</h2>';
+                html += '<div class="table-container">';
+                html += '<table class="results-table">';
+                html += '<thead><tr>';
+                html += '<th>ID</th>';
+                html += '<th>Name</th>';
+                html += '<th>Address</th>';
+                html += '<th>Error</th>';
+                html += '<th>Timestamp</th>';
+                html += '</tr></thead>';
+                html += '<tbody>';
+                
+                data.results.forEach(function(result) {
+                    html += '<tr class="' + (result.error ? 'error-row' : 'success-row') + '">';
+                    html += '<td>' + escapeHtml(result.business_id || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.name || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.address || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.error || 'N/A') + '</td>';
+                    html += '<td>' + escapeHtml(result.timestamp || 'N/A') + '</td>';
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div></div>';
+                resultsContainer.innerHTML = html;
+            } else {
+                resultsContainer.innerHTML = '<div class="error-card"><p class="error-message">Unexpected response format.</p></div>';
+            }
+        })
+        .catch(error => {
+            resultsContainer.innerHTML = '<div class="error-card"><p class="error-message">Network error. Please try again.</p></div>';
+        });
+    });
+    
+    function escapeHtml(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+})();
+</script>
+{% endblock %}

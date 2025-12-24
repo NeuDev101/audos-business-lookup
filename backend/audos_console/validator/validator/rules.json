@@ -1,0 +1,54 @@
+{
+  "rules": [
+    {
+      "field": "issuer_name",
+      "type": "required",
+      "message_key": "missing_issuer_name"
+    },
+    {
+      "field": "buyer",
+      "type": "required",
+      "message_key": "missing_buyer"
+    },
+    {
+      "field": "invoice_number",
+      "type": "required",
+      "message_key": "missing_invoice_number"
+    },
+    {
+      "field": "date",
+      "type": "date_iso",
+      "message_key": "invalid_date"
+    },
+    {
+      "field": "issuer_id",
+      "type": "regex",
+      "pattern": "^T[0-9]{13}$",
+      "message_key": "invalid_issuer_id"
+    },
+    {
+      "field": "email",
+      "type": "regex",
+      "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$",
+      "message_key": "invalid_email"
+    },
+    {
+      "field": "phone",
+      "type": "regex",
+      "pattern": "^0\\d{1,4}-\\d{1,4}-\\d{4}$",
+      "message_key": "invalid_phone"
+    },
+    {
+      "field": "address",
+      "type": "regex",
+      "pattern": "^[\\u4E00-\\u9FFF\\u3040-\\u30FF0-9\\-ー−―ー\\s]+$",
+      "message_key": "invalid_japanese_address"
+    },
+    {
+      "field": "items[].tax_rate",
+      "type": "enum_any_item",
+      "allowed": ["0%", "8%", "10%"],
+      "message_key": "invalid_tax_rate"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Flask==3.0.3
+pandas==2.2.2
+requests==2.32.3
+reportlab==4.1.0
+httpx>=0.28.1
+fastmcp==2.13.1
+pytest==8.3.3
+regex>=2024.4.16
+PyMuPDF==1.24.12
